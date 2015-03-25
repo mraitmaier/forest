@@ -351,7 +351,9 @@ func (t *AvlTree) findMinElem(node *AvlNode) (*AvlNode, error) {
 // Min returns the MIN element in the tree. This element is located far left in the tree.
 func (t *AvlTree) Min() (int, error) {
 
-	if cur, err := t.findMinElem(t.Root); err != nil {
+    var cur *AvlNode
+    var err error
+	if cur, err = t.findMinElem(t.Root); err != nil {
 		return 0, nil
 	}
 	return cur.Data, err
@@ -377,7 +379,9 @@ func (t *AvlTree) findMaxElem(node *AvlNode) (*AvlNode, error) {
 // Max returns the MAX element in the tree. This element is located far right in the tree.
 func (t *AvlTree) Max() (int, error) {
 
-	if cur, err := t.findMaxElem(t.Root); err != nil {
+    var cur *AvlNode
+    var err error
+	if cur, err = t.findMaxElem(t.Root); err != nil {
 		return 0, err
 	}
 	return cur.Data, nil
