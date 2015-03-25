@@ -1,15 +1,15 @@
+package forest
+
 //
 // dswalgo.go - an implementation of the Day-Stout-Warren algorithm (DSW), a method of rebalancing the ordinary Binary Search Trees
 //
 // see more at: http://en.wikipedia.org/wiki/Day-Stout-Warren_algorithm
 
-package forest
-
 import (
 //    "fmt"
 )
 
-// Rebalance the BST.
+// Balance rebalances the BST.
 func Balance(tree *BinTree) {
 
 	if tree.Root == nil {
@@ -22,12 +22,12 @@ func Balance(tree *BinTree) {
 	updateParents(tree)
 }
 
-// Converts a BST into a vine (sorted linked list) using left pointers.
+// Tree2Vine converts a BST into a vine (sorted linked list) using left pointers.
 func Tree2Vine(root *Node) *Node {
 
-	var prev *Node = nil
-	var cur *Node = root
-	var temp *Node = nil
+	var prev *Node
+	var temp *Node
+	var cur = root
 
 	for cur != nil {
 
@@ -53,7 +53,7 @@ func Tree2Vine(root *Node) *Node {
 	return root
 }
 
-// Calculate the number of leaves in the bottom level of the balanced tree
+// Calculates the number of leaves in the bottom level of the balanced tree
 func numOfLeaves(size int) int {
 
 	leaves, next := size+1, 0
@@ -67,7 +67,7 @@ func numOfLeaves(size int) int {
 	return size + 1 - leaves
 }
 
-// Transform the given vine into a balanced tree.
+// Vine2Tree transforms the given vine back into a balanced tree.
 func Vine2Tree(root *Node, size int) *Node {
 
 	// calculate the number of leaves in the bottom level of the balanced tree
@@ -96,7 +96,7 @@ func compress(root *Node, count int) *Node {
 	root = black // new root
 	root.parent = nil
 
-	for ; count != 0; count -= 1 {
+	for ; count != 0; count-- {
 		red.left = black.right
 		black.right = red
 		red = black.left
@@ -112,9 +112,9 @@ func compress(root *Node, count int) *Node {
 // Update the parent pointers after the tree's been rebalanced.
 func updateParents(bt *BinTree) {
 
-	var cur *Node = bt.Root
-	var prev *Node = nil
-	var next *Node = nil
+	var cur = bt.Root
+	var prev *Node
+	var next *Node
 
 	cur.parent = nil // make sure root's parent does not point anywhere...
 	for cur != nil {
