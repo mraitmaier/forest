@@ -1,12 +1,13 @@
-//
-
 package forest
+
+// avltree.go - this is an example implementation of AVL tree; currently uses ints as data.
+// Basically this is an exercise in style that can be quite useful in the near future.
 
 import (
 	"fmt"
 )
 
-// Define the AVL Tree node
+// AvlNode defines the single AVL Tree node
 type AvlNode struct {
 
 	// Data
@@ -19,51 +20,51 @@ type AvlNode struct {
 	height int
 }
 
-// Create a new AVL tree node.
+// NewAvlNode creates new AVL tree node.
 func NewAvlNode(data int) *AvlNode { return &AvlNode{data, nil, nil, nil, 1} }
 
-// A string representation of the node.
+// String  retunrs a human-readable representation of the node.
 func (n *AvlNode) String() string {
 
 	s := fmt.Sprintf("Node: %d, h=%d ", n.Data, n.height)
 	if n.left != nil {
-		s = fmt.Sprintf("%s left=&v ", s, n.left)
+		s = fmt.Sprintf("%s left=%v ", s, n.left)
 	} else {
 		s = fmt.Sprintf("%s left=Empty ", s)
 	}
 	if n.right != nil {
-		s = fmt.Sprintf("%s right=&v ", s, n.right)
+		s = fmt.Sprintf("%s right=%v ", s, n.right)
 	} else {
 		s = fmt.Sprintf("%s right=Empty ", s)
 	}
 	if n.parent != nil {
-		s = fmt.Sprintf("%s parent=&v ", s, n.right)
+		s = fmt.Sprintf("%s parent=%v ", s, n.right)
 	} else {
 		s = fmt.Sprintf("%s parent=Empty ", s)
 	}
 	return s
 }
 
-// Get balance factor
+// Balance calculates the balance factor.
 func (n *AvlNode) Balance() int { return height(n.left) - height(n.right) }
 
-// Define the AVL Tree
+// AvlTree defines the AVL Tree structure.
 type AvlTree struct {
 
-	// The root of the tree
+	// Root represents the root of the tree.
 	Root *AvlNode
 
-	// Number of nodes in the tree
+	// Len conviently holds the number of nodes in the tree.
 	Len int
 }
 
-// Create a new empty tree.
+// NewTree creates a new empty tree.
 func NewTree() *AvlTree { return &AvlTree{nil, 0} }
 
-// Return a found node, otherwise return nil.
+// Returns a found node, otherwise returns nil.
 func (t *AvlTree) find(node *AvlNode, data int) *AvlNode {
 
-	var cur *AvlNode = node
+	var cur = node
 	for cur != nil {
 		if cur.Data == data {
 			break
@@ -76,10 +77,10 @@ func (t *AvlTree) find(node *AvlNode, data int) *AvlNode {
 	return cur
 }
 
-// Search for a given data in the tree
+// SearchFor searches for a given data in the tree. Returns nil if not found.
 func (t *AvlTree) SearchFor(data int) *AvlNode { return t.find(t.Root, data) }
 
-// Check if given element is a member of a tree.
+// In checks if given element is a member of a tree.
 func (t *AvlTree) In(data int) bool {
 
 	if t.SearchFor(data) != nil {
@@ -88,7 +89,7 @@ func (t *AvlTree) In(data int) bool {
 	return false
 }
 
-// Rotate right operation
+// This is a rotate-right operation method.
 func (t *AvlTree) rotateR(node *AvlNode) *AvlNode {
 
 	left := node.left
@@ -106,7 +107,7 @@ func (t *AvlTree) rotateR(node *AvlNode) *AvlNode {
 	return left
 }
 
-// Rotate left operation
+// This is a rotate-left operation method.
 func (t *AvlTree) rotateL(node *AvlNode) *AvlNode {
 
 	right := node.right
@@ -124,7 +125,7 @@ func (t *AvlTree) rotateL(node *AvlNode) *AvlNode {
 	return right
 }
 
-// After rotation, parent node (usually) points  to wrong node, fix this.
+// After rotation, parent node (usually) points to wrong node, fix this.
 func (t *AvlTree) updateParent(node, prev, parent *AvlNode) *AvlNode {
 
 	switch {
@@ -140,10 +141,10 @@ func (t *AvlTree) updateParent(node, prev, parent *AvlNode) *AvlNode {
 	return parent
 }
 
-// Rebalance the tree.
+// Rebalances the tree.
 func (t *AvlTree) balance(node *AvlNode) *AvlTree {
 
-	var parent *AvlNode = nil
+	var parent *AvlNode
 	cur := node.parent // node's parents and up might be unbalanced...
 
 	for cur != nil {
@@ -180,13 +181,14 @@ func (t *AvlTree) balance(node *AvlNode) *AvlTree {
 	return t
 }
 
-// Insert a new node into the tree. Basically the same as the generic BST tree insert. Balancing is done in its own method.
+// Inserts a new node into the tree.
+// Basically the same as the generic BST tree insert. Balancing is done in its own method.
 func (t *AvlTree) insert(node *AvlNode) *AvlNode {
 
 	// if the tree is empty, just define the root..
 	if t.Root == nil {
 		t.Root = node
-		t.Len += 1
+		t.Len++
 		return node
 	}
 
@@ -213,12 +215,12 @@ func (t *AvlTree) insert(node *AvlNode) *AvlNode {
 
 	case node.Data < prev.Data:
 		prev.left = node
-		t.Len += 1
+		t.Len++
 		node.parent = prev
 
 	case node.Data > prev.Data:
 		prev.right = node
-		t.Len += 1
+		t.Len++
 		node.parent = prev
 
 	default: // do nothing when element already exists
@@ -226,7 +228,7 @@ func (t *AvlTree) insert(node *AvlNode) *AvlNode {
 	return node
 }
 
-// Insert a new node into the tree. Insertion is done iteratively, not using recursion (as usual).
+// Insert inserts a new node into the tree. Insertion is done iteratively, not using recursion (as usual).
 // We try to avoid the problem with recursion depth, when tree grows really large.
 func (t *AvlTree) Insert(node *AvlNode) {
 
@@ -236,13 +238,13 @@ func (t *AvlTree) Insert(node *AvlNode) {
 	t = t.balance(node)
 }
 
-// Add a new element to the tree.
+// Add adds a new element to the tree.
 func (t *AvlTree) Add(data int) {
 	n := NewAvlNode(data)
 	t.Insert(n)
 }
 
-// Post-order traversal of the tree.
+// TraversePostOrder executes the post-order traversal of the tree.
 func (t *AvlTree) TraversePostOrder() {
 	fmt.Print("Post-order: ")
 	t.postorder(t.Root)
@@ -250,17 +252,17 @@ func (t *AvlTree) TraversePostOrder() {
 }
 
 // Post-order traversal
-func (bt *AvlTree) postorder(node *AvlNode) {
+func (t *AvlTree) postorder(node *AvlNode) {
 
 	if node == nil {
 		return
 	}
-	bt.postorder(node.left)
-	bt.postorder(node.right)
+	t.postorder(node.left)
+	t.postorder(node.right)
 	fmt.Printf("%d ", node.Data)
 }
 
-// Pre-order traversal of the tree.
+// TraversePreOrder executes the pre-order traversal of the tree.
 func (t *AvlTree) TraversePreOrder() {
 	fmt.Print(" Pre-order: ")
 	t.preorder(t.Root)
@@ -268,17 +270,17 @@ func (t *AvlTree) TraversePreOrder() {
 }
 
 // Pre-order traversal
-func (bt *AvlTree) preorder(node *AvlNode) {
+func (t *AvlTree) preorder(node *AvlNode) {
 
 	if node == nil {
 		return
 	}
 	fmt.Printf("%d ", node.Data)
-	bt.preorder(node.left)
-	bt.preorder(node.right)
+	t.preorder(node.left)
+	t.preorder(node.right)
 }
 
-// In-order traversal of the tree.
+// Traverse executes the in-order traversal of the tree.
 func (t *AvlTree) Traverse() {
 	fmt.Print("  In-order: ")
 	t.inorder(t.Root)
@@ -286,14 +288,14 @@ func (t *AvlTree) Traverse() {
 }
 
 // traversing left iteratively
-func (bt *AvlTree) inorder(node *AvlNode) {
+func (t *AvlTree) inorder(node *AvlNode) {
 
 	if node == nil {
 		return
 	}
-	bt.inorder(node.left)
+	t.inorder(node.left)
 	fmt.Printf("%d ", node.Data)
-	bt.inorder(node.right)
+	t.inorder(node.right)
 }
 
 /*
@@ -333,7 +335,7 @@ func (bt *AvlTree) InorderIter(node *AvlNode) {
 // Searches for the MIN element of the tree; it's the deepest, far left element.
 func (t *AvlTree) findMinElem(node *AvlNode) (*AvlNode, error) {
 
-	var cur *AvlNode = node // we start at node
+	var cur = node // we start at node
 
 	// if tree is still empty, just return an error
 	if cur == nil {
@@ -346,20 +348,19 @@ func (t *AvlTree) findMinElem(node *AvlNode) (*AvlNode, error) {
 	return cur, nil
 }
 
-// Return the Min() element in the tree. This element is deepest and far left.
+// Min returns the MIN element in the tree. This element is located far left in the tree.
 func (t *AvlTree) Min() (int, error) {
 
 	if cur, err := t.findMinElem(t.Root); err != nil {
 		return 0, nil
-	} else {
-		return cur.Data, err
 	}
+	return cur.Data, err
 }
 
 // Searches for the MAX element of the tree; it's the deepest, far right element.
 func (t *AvlTree) findMaxElem(node *AvlNode) (*AvlNode, error) {
 
-	var cur *AvlNode = node // we start at node (usually root)
+	var cur = node // we start at node (usually root)
 
 	// if tree is still empty, just return an error
 	if cur == nil {
@@ -373,14 +374,13 @@ func (t *AvlTree) findMaxElem(node *AvlNode) (*AvlNode, error) {
 
 }
 
-// Return the Max() element in the tree. This element is far right.
+// Max returns the MAX element in the tree. This element is located far right in the tree.
 func (t *AvlTree) Max() (int, error) {
 
 	if cur, err := t.findMaxElem(t.Root); err != nil {
 		return 0, err
-	} else {
-		return cur.Data, nil
 	}
+	return cur.Data, nil
 }
 
 // find the larger child of the node.
@@ -404,9 +404,8 @@ func (t *AvlTree) findLarger(node *AvlNode) *AvlNode {
 	default: // node has both children
 		if node.right.Balance() > node.left.Balance() {
 			return node.right
-		} else {
-			return node.left
 		}
+		return node.left
 	}
 }
 
@@ -418,8 +417,8 @@ func (t *AvlTree) balanceD(node *AvlNode) *AvlTree {
 		return t
 	}
 
-	var parent *AvlNode = nil
-	var child *AvlNode = nil
+	var parent *AvlNode
+	var child *AvlNode
 	cur := node.parent // node's parents and up might be unbalanced...
 
 	for cur != nil {
@@ -457,7 +456,7 @@ func (t *AvlTree) balanceD(node *AvlNode) *AvlTree {
 	return t
 }
 
-// Delete an element from the tree.
+// Delete removes an element from the tree.
 func (t *AvlTree) Delete(node *AvlNode) *AvlTree {
 
 	var elem *AvlNode
@@ -501,7 +500,7 @@ func (t *AvlTree) Delete(node *AvlNode) *AvlTree {
 				min.parent.right = nil
 			}
 		}
-		t.Len -= 1 // we have one element less...
+		t.Len-- // we have one element less...
 	}
 
 	// Now we have rebalance the tree... But only if the element was found in the tree.
@@ -512,7 +511,7 @@ func (t *AvlTree) Delete(node *AvlNode) *AvlTree {
 	return t
 }
 
-// Remove the node with the given value.
+// Remove removes the node with the given value.
 func (t *AvlTree) Remove(data int) *AvlTree {
 	n := NewAvlNode(data)
 	return t.Delete(n)
@@ -524,16 +523,14 @@ func (t *AvlTree) Remove(data int) *AvlTree {
 func height(node *AvlNode) int {
 	if node == nil {
 		return 0
-	} else {
-		return node.height
 	}
+	return node.height
 }
 
 // Just  return the higher integer of the two.
 func largerOf(x, y int) int {
 	if x > y {
 		return x
-	} else {
-		return y
 	}
+	return y
 }
