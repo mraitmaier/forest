@@ -1,28 +1,29 @@
+package forest
+
 //
 // bintree.go - implementation of the generic Binary Search Tree in Go.
 //
+//
 // Jan 2015
-
-package forest
 
 import (
 	"fmt"
 )
 
-// tree node definition
+// Node defines a single binary tree node
 type Node struct {
 
-	// a data, here a simple integer
+	// Data, here a simple integer
 	Data int
 
 	// left and right children of the node and parent node
 	left, right, parent *Node
 }
 
-// Create new empty tree node.
+// NewNode creates a new empty tree node.
 func NewNode(data int) *Node { return &Node{data, nil, nil, nil} }
 
-// Return a string representation of the Node.
+// String returns a human-readable representation of the node.
 func (n *Node) String() string {
 	s := fmt.Sprintf("Node: %d\n", n.Data)
 	if n.left != nil {
@@ -43,23 +44,23 @@ func (n *Node) String() string {
 	return s
 }
 
-// Binary Search Tree
+// BinTree defines the Binary Search Tree
 type BinTree struct {
 
-	// Pointer to root node
+	// Root is a pointer to root node
 	Root *Node
 
-	// Number of elements in the tree (we keep this information separately)
+	// Len stores a number of elements in the tree (we keep this information separately)
 	Len int
 }
 
-// Create new empty binary tree.
+// NewBinTree creates a new empty BST.
 func NewBinTree() *BinTree { return &BinTree{nil, 0} }
 
-// aux method to find the right element
+// aux method that finds the right element; returns nil if not found
 func (bt *BinTree) find(root *Node, elem int) *Node {
 
-	var cur *Node = root
+	var cur = root
 	for (cur != nil) && (cur.Data != elem) {
 		if elem < cur.Data {
 			cur = cur.left
@@ -70,13 +71,13 @@ func (bt *BinTree) find(root *Node, elem int) *Node {
 	return cur
 }
 
-// Find an element in the tree.
+// Find searches for the element in the tree. Returns nil if not found.
 func (bt *BinTree) Find(elem int) *Node {
 	node := bt.find(bt.Root, elem)
 	return node
 }
 
-// Checks whether the given element is a member of a tree.
+// In checks whether the given element is a member of a tree.
 func (bt *BinTree) In(elem int) bool {
 
 	status := false
@@ -90,7 +91,7 @@ func (bt *BinTree) In(elem int) bool {
 // Searches for the MIN element of the tree; it's the far left element.
 func (bt *BinTree) findMinElem(node *Node) (*Node, bool) {
 
-	var cur *Node = node // we start at node
+	var cur = node // we start at node
 
 	// if tree is still empty, just return an error
 	if cur == nil {
@@ -103,20 +104,21 @@ func (bt *BinTree) findMinElem(node *Node) (*Node, bool) {
 	return cur, true
 }
 
-// Return the Min() element in the tree. This element is the far left element.
+// Min returns the MIN element in the tree. This element is located as the far left element.
 func (bt *BinTree) Min() (int, bool) {
 
-	if cur, ok := bt.findMinElem(bt.Root); !ok {
+	var cur *Node
+	var ok bool
+	if cur, ok = bt.findMinElem(bt.Root); !ok {
 		return 0, false
-	} else {
-		return cur.Data, true
 	}
+	return cur.Data, true
 }
 
 // Searches for the MAX element of the tree; it's the far right element.
 func (bt *BinTree) findMaxElem(node *Node) (*Node, bool) {
 
-	var cur *Node = node // we start at node (usually root)
+	var cur = node // we start at node (usually root)
 
 	// if tree is still empty, just return an error
 	if cur == nil {
@@ -130,23 +132,24 @@ func (bt *BinTree) findMaxElem(node *Node) (*Node, bool) {
 
 }
 
-// Return the Max() element in the tree. This element is the far right.
+// Max Return the MAX element in the tree. This element is located as the far right element.
 func (bt *BinTree) Max() (int, bool) {
 
-	if cur, ok := bt.findMaxElem(bt.Root); !ok {
+	var cur *Node
+	var ok bool
+	if cur, ok = bt.findMaxElem(bt.Root); !ok {
 		return 0, false
-	} else {
-		return cur.Data, true
 	}
+	return cur.Data, true
 }
 
-// traversing left iteratively
+// Traverse implements the tree traversing left iteratively
 // FIXME: there's obviously a bug somewhere in this method...
 func (bt *BinTree) Traverse() {
 
-	var cur *Node = bt.Root
-	var prev *Node = nil
-	var next *Node = nil
+	var cur = bt.Root
+	var prev *Node
+	var next *Node
 
 	fmt.Print("        Traversing: ")
 	for cur != nil {
@@ -175,13 +178,13 @@ func (bt *BinTree) Traverse() {
 	fmt.Println()
 }
 
-// traversing right iteratively
+// TraverseReverse implements tree traversing right (reverse order) iteratively.
 // FIXME: there's obviously a bug somewhere in this method...
 func (bt *BinTree) TraverseReverse() {
 
-	var cur *Node = bt.Root
-	var prev *Node = nil
-	var next *Node = nil
+	var cur = bt.Root
+	var prev *Node
+	var next *Node
 
 	fmt.Print("Reverse-Traversing: ")
 	for cur != nil {
@@ -212,13 +215,13 @@ func (bt *BinTree) TraverseReverse() {
 	fmt.Println()
 }
 
-// Insert a new element into the tree.
+// Insert inserts a new element into the tree.
 func (bt *BinTree) Insert(node *Node) {
 
 	// if node is empty, just assign the current node to root
 	if bt.Root == nil {
 		bt.Root = node
-		bt.Len += 1
+		bt.Len++
 		return
 	}
 
@@ -245,12 +248,12 @@ func (bt *BinTree) Insert(node *Node) {
 
 	case node.Data < prev.Data:
 		prev.left = node
-		bt.Len += 1
+		bt.Len++
 		node.parent = prev
 
 	case node.Data > prev.Data:
 		prev.right = node
-		bt.Len += 1
+		bt.Len++
 		node.parent = prev
 
 	default: // if element already exists, do nothing...
@@ -259,7 +262,7 @@ func (bt *BinTree) Insert(node *Node) {
 	return
 }
 
-// Add an element to tree.
+// Add adds an element with value 'val' to tree.
 func (bt *BinTree) Add(val int) {
 	node := NewNode(val)
 	bt.Insert(node)
@@ -287,23 +290,23 @@ func (bt *BinTree) sortD(node *Node, sorted *[]int) {
 	bt.sortD(node.left, sorted)
 }
 
-// sort from min element to max
+// SortA sorts the elements in the tree in ascending order (from min element to max). Returns a slice of ints.
 func (bt *BinTree) SortA() []int {
 
-	sorted := make([]int, 0)
+	var sorted []int
 	bt.sortA(bt.Root, &sorted)
 	return sorted
 }
 
-// sort from max element to min
+// SortD sorts the elements in the tree in descending order (from max element to min). Returns a slice of ints.
 func (bt *BinTree) SortD() []int {
 
-	sorted := make([]int, 0)
+	var sorted []int
 	bt.sortD(bt.Root, &sorted)
 	return sorted
 }
 
-// Delete an element from the tree.
+// Delete removes an element from the tree.
 func (bt *BinTree) Delete(node *Node) {
 
 	if elem := bt.find(bt.Root, node.Data); elem != nil {
@@ -336,16 +339,16 @@ func (bt *BinTree) Delete(node *Node) {
 				min.parent.right = nil
 			}
 		}
-		bt.Len -= 1 // we have one element less...
+		bt.Len-- // we have one element less...
 	}
 	// if no element is found (elem == nil), just return; works for empty root, too
 }
 
-// Remove the data from the BST.
+// Remove removes the element from the BST.
 func (bt *BinTree) Remove(data int) {
 	n := NewNode(data)
 	bt.Delete(n)
 }
 
-// Rebalance the BST (using the Day-Stout-Warren algorithm)
+// Balance rebalances the BST using the Day-Stout-Warren algorithm.
 func (bt *BinTree) Balance() { Balance(bt) }
