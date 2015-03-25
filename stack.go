@@ -4,7 +4,7 @@
 // can use elements of any type to build a stack as long as one is carefull. It is advisable to use elements of the same type,
 // though...
 // Example usage is seen from the commented main function.
-package stack
+package forest
 
 // Miran R., Jan2015
 
