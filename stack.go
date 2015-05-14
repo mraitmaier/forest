@@ -1,10 +1,9 @@
-// Package stack is a go implementation of the generic stack using slices.
-//
+package forest
+
 // This is general implementation of the stack using slices and empty interface (interface{}) elements. This is convenient as one
 // can use elements of any type to build a stack as long as one is carefull. It is advisable to use elements of the same type,
 // though...
 // Example usage is seen from the commented main function.
-package forest
 
 // Miran R., Jan2015
 
