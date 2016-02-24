@@ -82,8 +82,17 @@ type SgTree struct {
 func NewSgTree() *SgTree {
 	//    return &SgTree{nil, 0, defAlpha, 0,
 	//                         make(chan *SgNode), make(chan *SgNode), make(chan *SgNode), make(chan *SgNode), make(chan int) }
-	n := &SgTree{nil, 0, defAlpha, 0,
-                 make(chan *SgNode), make(chan *SgNode), make(chan *SgNode), make(chan *SgNode), make(chan int)}
+	n := &SgTree{
+		Root:    nil,
+		Size:    0,
+		alpha:   defAlpha,
+		maxSize: 0,
+		insch:   make(chan *SgNode),
+		rmch:    make(chan *SgNode),
+		fch:     make(chan *SgNode),
+		foundch: make(chan *SgNode),
+		quitch:  make(chan int),
+	}
 	go n.do() // start a dispather goroutine
 	return n
 }
@@ -226,10 +235,10 @@ func (t *SgTree) Insert(node *SgNode) {
 
 			// let's find the scapegoat and rebuild the tree around it
 			sg := t.findScapegoat(node)
-            fmt.Printf("DEBUG scapegoat=%d\n", sg)
-            if sg != nil {
-			    t.rebuild(sg)
-            }
+			fmt.Printf("DEBUG scapegoat=%d\n", sg)
+			if sg != nil {
+				t.rebuild(sg)
+			}
 		}
 	}
 }
@@ -246,7 +255,7 @@ func (t *SgTree) findScapegoat(node *SgNode) *SgNode {
 	for cur != nil {
 
 		if cur.parent == nil { // we are at root...
-		    break
+			break
 		}
 
 		// we define the current node's sibling
@@ -278,54 +287,56 @@ func (t *SgTree) rebuild(root *SgNode) {
 		return
 	}
 
-    //
-    nodesize := float64(size(root))
-    // remember the root's parent
-    p := root.parent
+	//
+	nodesize := float64(size(root))
+	// remember the root's parent
+	p := root.parent
 
 	// flatten the subtree
-    nodes := make([]*SgNode, 0, size(root))
-    t.flatten(root, nodes)
+	nodes := make([]*SgNode, 0, size(root))
+	t.flatten(root, nodes)
 
-    // if parent is empty (this is root node...)
-    if p == nil {
-        r := t.buildBalanced(nodes, 0.0, nodesize)
-        r.parent = nil
-    } else if p.right == root {
-        p.right = t.buildBalanced(nodes, 0.0, nodesize)
-        p.right.parent = p
-    } else {
-        p.left = t.buildBalanced(nodes, 0.0, nodesize)
-        p.left.parent = p
-    }
+	// if parent is empty (this is root node...)
+	if p == nil {
+		r := t.buildBalanced(nodes, 0.0, nodesize)
+		r.parent = nil
+	} else if p.right == root {
+		p.right = t.buildBalanced(nodes, 0.0, nodesize)
+		p.right.parent = p
+	} else {
+		p.left = t.buildBalanced(nodes, 0.0, nodesize)
+		p.left.parent = p
+	}
 
 }
 
 // Rebuild the balanced subtree after flattening.
 func (t *SgTree) buildBalanced(nodes []*SgNode, start, end float64) *SgNode {
 
-    if start >= end {
-        return nil
-    }
+	if start >= end {
+		return nil
+	}
 
-    mid := int(math.Ceil(start + (end - start) / 2.0))
+	mid := int(math.Ceil(start + (end-start)/2.0))
 
-    fmt.Printf("DEBUG buildBalanced(): nodes=%v\n", nodes) // DEBUG
-    fmt.Printf("DEBUG buildBalanced(): start=%f, end=%f, mid=%d\n", start, end, mid) // DEBUG
+	fmt.Printf("DEBUG buildBalanced(): nodes=%v\n", nodes)                           // DEBUG
+	fmt.Printf("DEBUG buildBalanced(): start=%f, end=%f, mid=%d\n", start, end, mid) // DEBUG
 
-    node := NewSgNode(nodes[mid].Data)
-    node.left = t.buildBalanced(nodes, start, float64(mid-1))
-    node.right = t.buildBalanced(nodes, float64(mid+1), end)
-    return node
+	node := NewSgNode(nodes[mid].Data)
+	node.left = t.buildBalanced(nodes, start, float64(mid-1))
+	node.right = t.buildBalanced(nodes, float64(mid+1), end)
+	return node
 }
 
 // Flatten the tree into slice (array) during the rebuilding phase.
 func (t *SgTree) flatten(node *SgNode, nodes []*SgNode) {
 
-    if node == nil { return }
-    t.flatten(node.left, nodes)
-    nodes = append(nodes, node)
-    t.flatten(node.right, nodes)
+	if node == nil {
+		return
+	}
+	t.flatten(node.left, nodes)
+	nodes = append(nodes, node)
+	t.flatten(node.right, nodes)
 }
 
 /*
@@ -373,7 +384,7 @@ func (t *SgTree) InOrder() {
 	fmt.Println()
 }
 
-// traversing left 
+// traversing left
 func (t *SgTree) inorder(node *SgNode) {
 
 	if node == nil {
@@ -567,4 +578,3 @@ func (t *SgTree) do() {
 
 // Stop sends a signal on the 'quit' channel that we're done.
 func (t *SgTree) Stop() { t.quitch <- 1 }
-
