@@ -17,7 +17,6 @@ func Balance(tree *BinTree) {
 	}
 
 	root := Tree2Vine(tree.Root)
-	//    traverseVine(root) // DEBUG
 	tree.Root = Vine2Tree(root, tree.Len)
 	updateParents(tree)
 }
@@ -45,6 +44,7 @@ func Tree2Vine(root *Node) *Node {
 				prev.left = temp
 			}
 
+            // XXX ??????????
 			if cur.Data > root.Data { // define new vine root
 				root = cur
 			}
@@ -145,12 +145,3 @@ func updateParents(bt *BinTree) {
 	}
 }
 
-/*
-func traverseVine(root *Node) {
-    fmt.Print("Traversing vine: ")
-    for cur := root; cur != nil; cur = cur.left {
-        fmt.Printf("%d ", cur.Data)
-    }
-    fmt.Println()
-}
-*/
