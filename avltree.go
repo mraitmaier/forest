@@ -58,8 +58,8 @@ type AvlTree struct {
 	Len int
 }
 
-// NewTree creates a new empty tree.
-func NewTree() *AvlTree { return &AvlTree{nil, 0} }
+// NewAvlTree creates a new empty tree.
+func NewAvlTree() *AvlTree { return &AvlTree{nil, 0} }
 
 // Returns a found node, otherwise returns nil.
 func (t *AvlTree) find(node *AvlNode, data int) *AvlNode {
