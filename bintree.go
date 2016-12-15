@@ -316,18 +316,26 @@ func (bt *BinTree) Delete(node *Node) {
 		switch {
 
 		case elem.left == nil && elem.right == nil: // found element is a leaf
-			if parent.right == elem {
+			if elem == parent.right {
 				parent.right = nil
 			} else {
 				parent.left = nil
 			}
 
 		case elem.left == nil: // found element has only right child
-			parent.right = elem.right
+			if elem == parent.right {
+				parent.right = elem.right
+			} else {
+				parent.left = elem.right
+			}
 			elem.right.parent = parent
 
 		case elem.right == nil: // found element has only left child
-			parent.left = elem.left
+			if elem == parent.left {
+				parent.left = elem.left
+			} else {
+				parent.right = elem.left
+			}
 			elem.left.parent = parent
 
 		default: // in general, found element has both children
