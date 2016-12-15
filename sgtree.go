@@ -45,6 +45,7 @@ type SgTree struct {
 
 // NewSgTree creates a new empty scape-goat tree.
 func NewSgTree() *SgTree { return &SgTree{nil, 0, defAlpha, 0} }
+
 /*
 func NewSgTree() *SgTree {
 	//    return &SgTree{nil, 0, defAlpha, 0,
@@ -65,9 +66,9 @@ func NewSgTree() *SgTree {
 }
 */
 
-// SetAlpha changes the value of Alpha factor. 
+// SetAlpha changes the value of Alpha factor.
 // For value of 0.5, scapegoat tree is equivalent to perfectly balanced BST; for value of 1.0,
-// linked list is considered as balanced BST.
+// a linked list is considered as balanced BST.
 func (t *SgTree) SetAlpha(val float64) error {
 	// check Alpha value, must be between 0.5 and 1.0
 	if val < 0.5 || val > 1.0 {
@@ -128,7 +129,7 @@ func (t *SgTree) In(data int) bool {
 	return false
 }
 
-// Insert a new node into the tree. Basically the same as the generic BST tree insert. Returns (pointer to) the 
+// Insert a new node into the tree. Basically the same as the generic BST tree insert. Returns (pointer to) the
 // inserted node and the depth of the node. Tree rebuild is done in its own method.
 func (t *SgTree) insert(node *Node) (*Node, int) {
 
@@ -136,8 +137,8 @@ func (t *SgTree) insert(node *Node) (*Node, int) {
 	if t.Root == nil {
 		t.Root = node
 		t.Size++
-        t.maxSize++
-        return nil, 0
+		t.maxSize++
+		return nil, 0
 	}
 
 	// traverse the tree to find the right spot
@@ -154,10 +155,10 @@ func (t *SgTree) insert(node *Node) (*Node, int) {
 		prev = cur
 		if node.Data < cur.Data {
 			cur = cur.left
-		//	depth++
+			//	depth++
 		} else {
 			cur = cur.right
-		//	depth++
+			//	depth++
 		}
 		depth++
 	}
@@ -192,10 +193,10 @@ func (t *SgTree) Add(data int) { t.Insert(NewNode(data)) }
 func (t *SgTree) Insert(node *Node) {
 
 	// insert new node operation, the same as generic BST; also get depth for the node
-    node, depth := t.insert(node)
-    // if node is empty, no need to do anything...
-	// but if not, we check the alpha-height-balance value of the tree; if height of the tree exceeds 
-    // the alpha-height-balance value, find a scapegoat node and rebuild a subtree rooted by scapegoat
+	node, depth := t.insert(node)
+	// if node is empty, no need to do anything...
+	// but if not, we check the alpha-height-balance value of the tree; if height of the tree exceeds
+	// the alpha-height-balance value, find a scapegoat node and rebuild a subtree rooted by scapegoat
 	if node != nil {
 
 		if float64(depth) > t.heightFactor(t.Size) {
@@ -215,13 +216,13 @@ func (t *SgTree) Insert(node *Node) {
 func (t *SgTree) findScapegoat(node *Node) *Node {
 
 	var sibling *Node
-    h := 0 // current height
+	h := 0 // current height
 	csize, totalsize := 1, 0
-    cur := node
+	cur := node
 
 	for cur.parent != nil {
 
-        h++
+		h++
 		// we define the current node's sibling
 		if cur == cur.parent.left {
 			sibling = cur.parent.right
@@ -230,9 +231,9 @@ func (t *SgTree) findScapegoat(node *Node) *Node {
 		}
 		totalsize = 1 + csize + size(sibling)
 
-        if float64(h) > (math.Log10(float64(totalsize)) / math.Log10(1 / t.alpha))  {
-            return cur.parent
-        }
+		if float64(h) > (math.Log10(float64(totalsize)) / math.Log10(1/t.alpha)) {
+			return cur.parent
+		}
 		cur = cur.parent
 		csize = totalsize
 	}
@@ -242,15 +243,15 @@ func (t *SgTree) findScapegoat(node *Node) *Node {
 // Rebuild the tree after scape-goat has been found (root is here the root of the given subtree!).
 func (t *SgTree) rebuild(root *Node) *Node {
 
-    // flatten the subtree into linked list
-    t.tree2List(root)
-    // rebuild the linked list into balanced BST
-    //root = t.list2Tree(root)
-    t.list2Tree(root)
-    // since we have parent ptrs, we need to do some book-keeping
-    t.updateParents(root)
+	// flatten the subtree into linked list
+	t.tree2List(root)
+	// rebuild the linked list into balanced BST
+	//root = t.list2Tree(root)
+	t.list2Tree(root)
+	// since we have parent ptrs, we need to do some book-keeping
+	t.updateParents(root)
 
-    return root
+	return root
 }
 
 // Tree2Vine converts a BST into a vine (sorted linked list) using left pointers.
@@ -280,9 +281,9 @@ func (t *SgTree) tree2List(root *Node) {
 //func (t *SgTree) list2Tree(root *Node) *Node {
 func (t *SgTree) list2Tree(root *Node) {
 
-    s := size(root)
+	s := size(root)
 	// calculate the number of leaves in the bottom level of the balanced tree
-    // note: function is defined in <dslwalgo.go>
+	// note: function is defined in <dslwalgo.go>
 	leaves := numOfLeaves(s)
 
 	// now do the compression
@@ -290,19 +291,19 @@ func (t *SgTree) list2Tree(root *Node) {
 	if leaves > 0 {
 		t.compress(root, leaves)
 	}
-    fmt.Printf("DEBUG list2Tree() special to general case finished. \n")
-    t.Traverse() // DEBUG
+	fmt.Printf("DEBUG list2Tree() special to general case finished. \n")
+	t.Traverse() // DEBUG
 
 	s = s - leaves // number of nodes in main vine
-    cur := root
+	cur := root
 	for s > 1 {
-    fmt.Printf("DEBUG list2Tree() vine=%d. \n", s)
-        t.compress(cur, (s / 2))
+		fmt.Printf("DEBUG list2Tree() vine=%d. \n", s)
+		t.compress(cur, (s / 2))
 		s /= 2
 	}
-    fmt.Printf("DEBUG list2Tree() finished. \n")
-    t.Traverse() // DEBUG
-//	return root
+	fmt.Printf("DEBUG list2Tree() finished. \n")
+	t.Traverse() // DEBUG
+	//	return root
 }
 
 /*
@@ -322,27 +323,29 @@ func (t *SgTree) rotateR(node *Node) *Node {
 */
 
 // Vine-to-balanced-tree compress helper function.
-func (t *SgTree) compress(root *Node, count int)  {
+func (t *SgTree) compress(root *Node, count int) {
 
-    if root == nil { return }
+	if root == nil {
+		return
+	}
 
-    var cur, child *Node
+	var cur, child *Node
 
-    cur = root
-    for ; count != 0; count-- {
-        child = cur.left
-        cur.left = child.left
-        cur = cur.right
-        child.left = cur.left
-        cur.right = child
-    }
+	cur = root
+	for ; count != 0; count-- {
+		child = cur.left
+		cur.left = child.left
+		cur = cur.right
+		child.left = cur.left
+		cur.right = child
+	}
 }
 
 // Update the parent pointers after the tree's been rebalanced.
 func (t *SgTree) updateParents(root *Node) {
 
 	var prev, next *Node
-    cur := root
+	cur := root
 
 	root.parent = nil // make sure root's parent does not point anywhere...
 	for cur != nil {
@@ -610,5 +613,3 @@ func (t *SgTree) Traverse() {
 	}
 	fmt.Println()
 }
-
-

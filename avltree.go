@@ -99,7 +99,7 @@ func (t *AvlTree) rotateR(node *AvlNode) *AvlNode {
 	left.parent = node.parent
 	node.parent = left
 
-	// update hights
+	// update heights
 	node.height = largerOf(height(node.left), height(node.right)) + 1
 	left.height = largerOf(height(left.left), height(left.right)) + 1
 
@@ -142,6 +142,8 @@ func (t *AvlTree) updateParent(node, prev, parent *AvlNode) *AvlNode {
 }
 
 // Rebalances the tree.
+// XXX: there's probably a bug hiding in this method; some inserted elements are lost
+// XXX: since ordinary BST insert is probably working OK, the rebalance procedure must be broken - updateParents()???
 func (t *AvlTree) balance(node *AvlNode) *AvlTree {
 
 	var parent *AvlNode
@@ -217,13 +219,16 @@ func (t *AvlTree) insert(node *AvlNode) *AvlNode {
 		prev.left = node
 		t.Len++
 		node.parent = prev
+		fmt.Printf("DEBUG element %d inserted...\n", node.Data) // DEBUG
 
 	case node.Data > prev.Data:
 		prev.right = node
 		t.Len++
 		node.parent = prev
+		fmt.Printf("DEBUG element %d inserted...\n", node.Data) // DEBUG
 
 	default: // do nothing when element already exists
+		fmt.Printf("DEBUG element %d already exists...\n", node.Data) // DEBUG
 	}
 	return node
 }
@@ -298,28 +303,67 @@ func (t *AvlTree) inorder(node *AvlNode) {
 	t.inorder(node.right)
 }
 
+// Recursive traverse from Min to Max value (ascending sort).
+func (t *AvlTree) sortA(node *AvlNode, sorted *[]int) {
+
+	if node == nil {
+		return
+	}
+	t.sortA(node.left, sorted) // traverse left subtree
+	*sorted = append(*sorted, node.Data)
+	t.sortA(node.right, sorted) // and  right subtree
+}
+
+// Recursive traverse from Max to Min value (descending sort).
+func (t *AvlTree) sortD(node *AvlNode, sorted *[]int) {
+
+	if node == nil {
+		return
+	}
+	t.sortD(node.right, sorted)
+	*sorted = append(*sorted, node.Data)
+	t.sortD(node.left, sorted)
+}
+
+func (t *AvlTree) Sorted() []int {
+	var s []int
+	t.sortA(t.Root, &s)
+	return s
+}
+
 /*
 // iterative implementation of in-order traversal --- XXX: somewhere, there's a bug hiding...
-func (bt *AvlTree) InorderIter(node *AvlNode) {
-	var cur *AvlNode = bt.Root
+func (t *AvlTree) Sorted() []int {
+
+	var cur *AvlNode = t.Root
 	var prev *AvlNode = nil
 	var next *AvlNode = nil
+    var m []int
 
+    // go far left to the MIN member
+	for cur.left != nil {
+		cur = cur.left
+	}
+
+    // now let's traverse the tree and build a sorted slice
 	for cur != nil {
-		fmt.Printf("%d  ", cur.Data)
 		switch {
 		case prev == cur.parent: // we are in parent node, we try to go left, then right, then back to parent
 			if cur.left != nil {
 				next = cur.left
 			} else if cur.right != nil {
+                m = append(m, cur.Data)
 				next = cur.right
 			} else {
+                m = append(m, cur.Data)
 				next = cur.parent
 			}
 		case prev == cur.left: // we are in left element: we try to go right, then back to parent
 			if cur.right != nil {
+                m = append(m, cur.Data)
 				next = cur.right
 			} else {
+                m = append(m, cur.Data)
 				next = cur.parent
 			}
 		default: // we are in right element, go back to parent
@@ -328,7 +372,7 @@ func (bt *AvlTree) InorderIter(node *AvlNode) {
 		prev = cur
 		cur = next
 	}
-	fmt.Println()
+    return m
 }
 */
 
