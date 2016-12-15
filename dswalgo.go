@@ -44,7 +44,7 @@ func Tree2Vine(root *Node) *Node {
 				prev.left = temp
 			}
 
-            // XXX ??????????
+			// XXX ??????????
 			if cur.Data > root.Data { // define new vine root
 				root = cur
 			}
@@ -103,7 +103,7 @@ func compress(root *Node, count int) *Node {
 		if count != 1 { // the last count this step must be omitted; otherwise we lose an element...
 			black.left = red.left
 		}
-		black = red.left
+		black = red.left // FIXME: there's a bug here...
 	}
 
 	return root
@@ -144,4 +144,3 @@ func updateParents(bt *BinTree) {
 		cur = next
 	}
 }
-
