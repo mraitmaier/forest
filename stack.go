@@ -15,6 +15,7 @@ import (
 )
 */
 
+
 // Stack is a generic implementation of the stack.
 type Stack []interface{}
 
