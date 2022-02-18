@@ -433,28 +433,27 @@ func (t *SgTree) inorder(node *Node) {
 }
 
 // Searches for the MIN element of the tree; it's the far left element.
-func (t *SgTree) findMinElem(node *Node) (*Node, error) {
+func (t *SgTree) findMinElem(node *Node) (*Node, bool) {
 
 	cur := node // we start at node
 	// if tree is still empty, just return an error
 	if cur == nil {
-		return cur, fmt.Errorf("Empty tree")
+		return nil, false
 	}
 
 	for cur.left != nil {
 		cur = cur.left
 	}
-	return cur, nil
+	return cur, true
 }
 
 // Min returns the Min() element in the tree. This element is the far left.
 func (t *SgTree) Min() (int, error) {
 
-	cur, err := t.findMinElem(t.Root)
-	if err != nil {
-		return 0, nil
-	}
-	return cur.Data, err
+	if cur, ok := t.findMinElem(t.Root); ok {
+	return cur.Data,nil 
+    }
+    return 0, fmt.Errorf("Cannot find Min element")
 }
 
 // Searches for the MAX element of the (sub)tree; it's the far right element.
@@ -518,13 +517,14 @@ func (t *SgTree) Delete(node *Node) {
 			elem.left.parent = parent
 
 		default: // in general, found element has both children
-			min, _ := t.findMinElem(elem.right)       // find MIN value in right subtree
-			elem.Data, min.Data = min.Data, elem.Data // exchange the element value and the MIN value of right subtree
-			if min.right != nil {
-				min.Data = min.right.Data //
-				min.right = nil
-			} else {
-				min.parent.right = nil
+			if min, found := t.findMinElem(elem.right); found { // find MIN value in right subtree
+				elem.Data, min.Data = min.Data, elem.Data // exchange the element value and the MIN value of right subtree
+				if min.right != nil {
+					min.Data = min.right.Data //
+					min.right = nil
+				} else {
+					min.parent.right = nil
+				}
 			}
 		}
 		t.Size-- // we have one element less...

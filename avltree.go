@@ -377,30 +377,28 @@ func (t *AvlTree) Sorted() []int {
 */
 
 // Searches for the MIN element of the tree; it's the deepest, far left element.
-func (t *AvlTree) findMinElem(node *AvlNode) (*AvlNode, error) {
+func (t *AvlTree) findMinElem(node *AvlNode) (*AvlNode, bool) {
 
 	var cur = node // we start at node
 
 	// if tree is still empty, just return an error
 	if cur == nil {
-		return cur, fmt.Errorf("Empty tree")
+		return cur,false 
 	}
 
 	for cur.left != nil {
 		cur = cur.left
 	}
-	return cur, nil
+	return cur, true
 }
 
 // Min returns the MIN element in the tree. This element is located far left in the tree.
 func (t *AvlTree) Min() (int, error) {
 
-	var cur *AvlNode
-	var err error
-	if cur, err = t.findMinElem(t.Root); err != nil {
-		return 0, nil
+    if cur, ok := t.findMinElem(t.Root); ok {
+		return cur.Data, nil
 	}
-	return cur.Data, err
+	return 0, fmt.Errorf("Cannot find Min element")
 }
 
 // Searches for the MAX element of the tree; it's the deepest, far right element.
@@ -539,13 +537,13 @@ func (t *AvlTree) Delete(node *AvlNode) *AvlTree {
 			elem.left.parent = parent
 
 		default: // in general, found element has both children
-			min, _ := t.findMinElem(elem.right)       // find MIN value in right subtree
-			elem.Data, min.Data = min.Data, elem.Data // exchange the element value and the MIN value of right subtree
-			if min.right != nil {
-				min.Data = min.right.Data //
-				min.right = nil
-			} else {
-				min.parent.right = nil
+			if min, found := t.findMinElem(elem.right); found { // find MIN value in right subtree
+				elem.Data = min.Data // exchange the element value and the MIN value of right subtree
+				if min.parent.left == min {
+					min.parent.left = nil //
+				} else {
+					min.parent.right = nil
+				}
 			}
 		}
 		t.Len-- // we have one element less...
